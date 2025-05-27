@@ -41,9 +41,9 @@ html, body, [data-testid="stApp"] {{
     background-attachment: fixed;
     background-position: center;
     color: #f3f3f3;
+    font-family: 'Segoe UI', sans-serif;
 }}
 
-/* Title container */
 .title-container {{
     background: rgba(0, 0, 0, 0.75);
     padding: 25px 30px;
@@ -70,64 +70,41 @@ html, body, [data-testid="stApp"] {{
     text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
 }}
 
-/* Selectbox container */
-.stSelectbox > label {{
-    color: #eee !important;          /* Brighter label text */
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin-bottom: 6px;
+.stSelectbox label {{
+    color: #eee !important;
+    font-weight: bold;
 }}
 
-/* Selectbox inner */
-.stSelectbox > div > div {{
-    background-color: rgba(0, 0, 0, 0.5) !important;
+div[data-baseweb="select"] > div {{
+    background-color: rgba(20, 20, 20, 0.7) !important;
     color: white !important;
-    border-radius: 12px !important;
-    font-weight: 600;
-    font-size: 1.1rem;
-    padding-left: 12px;
-}}
-
-.stSelectbox > div > div > div[role="listbox"] {{
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    color: white !important;
-}}
-
-/* Input placeholder text color */
-.stTextInput>div>div>input::placeholder {{
-    color: #ddd !important;  /* Brighter placeholder */
-    opacity: 1 !important;
-    font-weight: 500;
-    font-size: 1.05rem;
-}}
-
-/* Input box text */
-.stTextInput>div>div>input {{
-    color: #f3f3f3 !important;
-    font-size: 1.1rem;
-    font-weight: 500;
-}}
-
-/* Output box */
-.output-box {{
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 20px;
     border-radius: 10px;
-    margin-top: 15px;
-    color: #fff;
-    font-size: 1.25rem;
-    line-height: 1.6;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.2);
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.9);
 }}
 
-/* Buttons */
+div[data-baseweb="select"] > div:hover {{
+    background-color: rgba(40, 40, 40, 0.9) !important;
+}}
+
+.stTextInput input {{
+    background-color: rgba(30, 30, 30, 0.8) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 10px !important;
+}}
+
+.stTextInput label {{
+    color: white !important;
+    font-weight: 600;
+    font-size: 1rem;
+}}
+
 button[kind="secondary"], button[kind="primary"] {{
     font-size: 1rem;
     font-weight: bold;
     background: linear-gradient(135deg, #4a00e0, #8e2de2);
-    color:white; 
+    color: white;
     border: none;
     border-radius: 12px;
     padding: 10px 24px;
@@ -142,7 +119,19 @@ button[kind="secondary"]:hover, button[kind="primary"]:hover {{
     filter: brightness(1.1);
 }}
 
-/* Copy button */
+.output-box {{
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.2);
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.9);
+}}
+
 .copy-button {{
     background: #ffffff22;
     border: 1px solid #888;
@@ -160,7 +149,6 @@ button[kind="secondary"]:hover, button[kind="primary"]:hover {{
     border-color: #ccc;
 }}
 
-/* Typing effect */
 .typing {{
     color: #fff;
     font-size: 1.2rem;
@@ -169,6 +157,7 @@ button[kind="secondary"]:hover, button[kind="primary"]:hover {{
 }}
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- UI Header ---
 st.markdown("""
