@@ -14,10 +14,10 @@ import pickle
 # --- Streamlit page config ---
 st.set_page_config(page_title="☁️ AI Marketing Generator", layout="centered")
 
-# --- Load API Key from Streamlit Secrets ---
+# --- API KEY ---
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 if not API_KEY:
-    st.error("API key not found in secrets.toml. Add GEMINI_API_KEY.")
+    st.error("API key not found. Please set 'GEMINI_API_KEY' in Streamlit secrets.")
     st.stop()
 
 # --- Helper to embed background image ---
@@ -26,11 +26,12 @@ def get_base64_bg(path):
         data = f.read()
     return base64.b64encode(data).decode()
 
-background_path = "pexels-leofallflat-1737957.jpg"
+background_path = "pexels-leofallflat-1737957.jpg"  # Ensure this file exists in your directory
 bg_base64 = get_base64_bg(background_path)
 
 # --- Custom CSS Styling ---
-st.markdown(f"""<style>
+st.markdown(f"""
+<style>
 html, body, [data-testid="stApp"] {{
     background-image: url("data:image/jpg;base64,{bg_base64}");
     background-size: cover;
@@ -40,11 +41,84 @@ html, body, [data-testid="stApp"] {{
     color: #f3f3f3;
     font-family: 'Segoe UI', sans-serif;
 }}
-... (CSS remains unchanged) ...
+
+/* 🔥 DARK OVERLAY for better readability */
+[data-testid="stApp"]::before {{
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: -1;
+}}
+
+.title-container {{
+    background: rgba(0, 0, 0, 0.75);
+    padding: 25px 30px;
+    border-radius: 15px;
+    max-width: 900px;
+    margin: 30px auto 10px auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    text-align: center;
+}}
+
+.title-container h1 {{
+    color: #ffffff;
+    font-size: 3.2rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+}}
+
+.subtitle {{
+    color: #eee;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
+}}
+
+.output-box {{
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.2);
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.9);
+}}
+
+.copy-button {{
+    background: #ffffff22;
+    border: 1px solid #888;
+    border-radius: 8px;
+    color: white;
+    padding: 6px 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}}
+
+.copy-button:hover {{
+    background: #ffffff44;
+    border-color: #ccc;
+}}
+
+.typing {{
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+}}
 </style>
 """, unsafe_allow_html=True)
-
-# --- Header ---
+#---Header and title
 st.markdown("""
 <div class="title-container">
     <h1>☁️ AI Marketing Idea Generator</h1>
