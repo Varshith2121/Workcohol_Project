@@ -2,7 +2,7 @@
 
 This is a Streamlit-based web application that uses Google Gemini (via LangChain) to generate creative marketing slogans, ad copies, and campaign ideas based on user input.
 
-![Image of the Interface](image.png)
+![Image of the Interface](pexels-leofallflat-1737957.jpg)
 
 ---
 
