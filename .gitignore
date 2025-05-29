@@ -1,2 +1,2 @@
-# ignore the .env file and .streamlit file
+#ignore .streamlit files
 *.streamlit

@@ -14,10 +14,10 @@ import pickle
 # --- Streamlit page config ---
 st.set_page_config(page_title="☁️ AI Marketing Generator", layout="centered")
 
-# --- API KEY ---
+# --- Load API key from secrets ---
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 if not API_KEY:
-    st.error("API key not found. Please set 'GEMINI_API_KEY' in Streamlit secrets.")
+    st.error("API key not found. Set GEMINI_API_KEY in Streamlit secrets.")
     st.stop()
 
 # --- Helper to embed background image ---
@@ -40,18 +40,6 @@ html, body, [data-testid="stApp"] {{
     background-position: center;
     color: #f3f3f3;
     font-family: 'Segoe UI', sans-serif;
-}}
-
-/* 🔥 DARK OVERLAY for better readability */
-[data-testid="stApp"]::before {{
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: -1;
 }}
 
 .title-container {{
@@ -80,8 +68,57 @@ html, body, [data-testid="stApp"] {{
     text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
 }}
 
+.stSelectbox label {{
+    color: #eee !important;
+    font-weight: bold;
+}}
+
+div[data-baseweb="select"] > div {{
+    background-color: rgba(20, 20, 20, 0.7) !important;
+    color: white !important;
+    border-radius: 10px;
+}}
+
+div[data-baseweb="select"] > div:hover {{
+    background-color: rgba(40, 40, 40, 0.9) !important;
+}}
+
+.stTextInput input {{
+    background-color: rgba(30, 30, 30, 0.8) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 10px !important;
+}}
+
+.stTextInput label {{
+    color: white !important;
+    font-weight: 600;
+    font-size: 1rem;
+}}
+
+button[kind="secondary"], button[kind="primary"] {{
+    font-size: 1rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #4a00e0, #8e2de2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}}
+
+button[kind="secondary"]:hover, button[kind="primary"]:hover {{
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    filter: brightness(1.1);
+}}
+
 .output-box {{
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.6);
     padding: 20px;
     border-radius: 10px;
     margin-top: 15px;
@@ -93,23 +130,6 @@ html, body, [data-testid="stApp"] {{
     text-shadow: 1px 1px 5px rgba(0,0,0,0.9);
 }}
 
-.copy-button {{
-    background: #ffffff22;
-    border: 1px solid #888;
-    border-radius: 8px;
-    color: white;
-    padding: 6px 12px;
-    margin-top: 10px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}}
-
-.copy-button:hover {{
-    background: #ffffff44;
-    border-color: #ccc;
-}}
-
 .typing {{
     color: #fff;
     font-size: 1.2rem;
@@ -118,7 +138,8 @@ html, body, [data-testid="stApp"] {{
 }}
 </style>
 """, unsafe_allow_html=True)
-#---Header and title
+
+# --- Header ---
 st.markdown("""
 <div class="title-container">
     <h1>☁️ AI Marketing Idea Generator</h1>
@@ -126,7 +147,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Gemini LLM Wrapper ---
+# --- Gemini LLM Wrapper for LangChain ---
 class GeminiLLM(LLM):
     model_name: str = "gemini-1.5-flash"
     _model: Any = PrivateAttr()
@@ -198,11 +219,6 @@ if user_input:
 
         if result:
             st.markdown(" 🎯 Generated Output")
-            st.markdown(f'<div class="output-box" id="output-text">{result}</div>', unsafe_allow_html=True)
-            st.markdown("""
-                <button class="copy-button" onclick="navigator.clipboard.writeText(document.getElementById('output-text').innerText);alert('Copied to clipboard!');">
-                    📋 Copy to Clipboard
-                </button>
-                """, unsafe_allow_html=True)
+            st.markdown(f'<div class="output-box">{result}</div>', unsafe_allow_html=True)
 else:
     st.info("Fill in the product/brand description to begin.")
