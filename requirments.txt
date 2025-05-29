@@ -1,5 +1,0 @@
-streamlit
-python-dotenv
-langchain
-google-generativeai
-pydantic
