@@ -39,4 +39,4 @@ This is a Streamlit-based web application that uses Google Gemini (via LangChain
 
   🌐 Live Demo
 
-You can try the deployed app here: [AI Marketing Idea Generator](https://aimarketgenerator.streamlit.app/)
+ You can try the deployed app here: [AI Marketing Idea Generator](https://aimarketgenerator.streamlit.app/)
