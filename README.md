@@ -22,14 +22,14 @@ This is a Streamlit-based web application that uses Google Gemini (via LangChain
 - Streamlit
 - Google Generative AI (Gemini)
 - LangChain
-- .env for API keys
+- Streamlit for API keys
 - Base64/CSS for background styling
 
 ---
 
   How It Works
 
-1. API Key is loaded from `.env` or Streamlit secrets.
+1. API Key is loaded from Streamlit secrets.
 2. A custom wrapper around Gemini is built by extending `langchain.llms.base.LLM`.
 3. Prompt templates are selected dynamically based on user choice.
 4. LangChain's `LLMChain` is used to call Gemini and return results.
