@@ -12,6 +12,7 @@ This is a Streamlit-based web application that uses Google Gemini (via LangChain
 - Simply enter a brief description about Brand/Product- the AI takes care of the rest.
 - Stylish UI with custom background image and dark blur theme.
 - Uses Google Gemini via LangChain's custom LLM wrapper.
+- Get results in formats suitable for social media, email marketing, web banners, and more.
 
 ---
 
