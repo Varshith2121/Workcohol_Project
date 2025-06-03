@@ -188,8 +188,8 @@ else:
     cache = {}
 
 # --- Main App Logic ---
-task_type = st.selectbox(" Select what to generate:", ["Slogan", "Ad Copy", "Campaign Idea"])
-user_input = st.text_input(" Describe your product or brand:", "e.g. 'A new eco-friendly water bottle'").strip()
+task_type = st.selectbox(" Select what you want to generate:", ["Slogan", "Ad Copy", "Campaign Idea"])
+user_input = st.text_input(" Describe your product or brand:", "e.g. 'A new eco-friendly recycled cotton clothing'").strip()
 
 prompt_templates = {
     "Slogan": "Create a catchy marketing slogan for: {product}",
