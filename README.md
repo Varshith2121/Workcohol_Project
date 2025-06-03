@@ -1,6 +1,6 @@
 # ☁️ AI Marketing Idea Generator
 
-This is a Streamlit-based web application that uses Google Gemini (via LangChain) to generate creative marketing slogans, ad copies, and campaign ideas based on user input.
+This is a Streamlit-based web application that uses Google Gemini (via LangChain) to generate creative marketing slogans, ad copies, and campaign ideas based on user input. It is a streamlined web app that helps startups, businesses, and marketers create high-converting slogans, ad copy, and campaign ideas in seconds. Powered by LangChain for advanced prompt orchestration and Streamlit for a fast, intuitive UI, this tool puts AI-driven creativity at your fingertips.
 
 ![Image of the Interface](pexels-leofallflat-1737957.jpg)
 
@@ -9,8 +9,7 @@ This is a Streamlit-based web application that uses Google Gemini (via LangChain
  Features
 
 - Choose between Slogan, Ad Copy, and Campaign Idea generation.
-- Input your brand or product description** and get instant results.
-- Built-in copy to clipboard functionality.
+- Simply enter a brief description about Brand/Product- the AI takes care of the rest.
 - Stylish UI with custom background image and dark blur theme.
 - Uses Google Gemini via LangChain's custom LLM wrapper.
 
