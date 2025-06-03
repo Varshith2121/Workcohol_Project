@@ -143,7 +143,7 @@ button[kind="secondary"]:hover, button[kind="primary"]:hover {{
 st.markdown("""
 <div class="title-container">
     <h1>☁️ AI Marketing Idea Generator</h1>
-    <p class="subtitle">Catchy <b>slogans</b>, <b>ad copies</b> and Bold<b> campaign ideas. AI Marketing, Simplified.</b></p>
+    <p class="subtitle">Catchy <b>slogans</b>, <b>ad copies</b> and <b> Bold campaign ideas. AI Marketing, Simplified.</b></p>
 </div>
 """, unsafe_allow_html=True)
 
