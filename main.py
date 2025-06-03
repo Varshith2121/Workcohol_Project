@@ -17,7 +17,7 @@ st.set_page_config(page_title="☁️ AI Marketing Generator", layout="centered"
 # --- Load API key from secrets ---
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 if not API_KEY:
-    st.error("API key not found. Set GEMINI_API_KEY in Streamlit secrets.")
+    st.error("If API key is not found, Set your GEMINI_API_KEY in Streamlit secrets.")
     st.stop()
 
 # --- Helper to embed background image ---
