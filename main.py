@@ -267,3 +267,19 @@ if user_input and task_type != "-- Select --" and generate_clicked:
     if result:
         st.markdown("🎯 Generated Output")
         st.markdown(f'<div class="output-box">{result}</div>', unsafe_allow_html=True)
+# --- Show History (Main Area) ---
+if st.session_state.show_history:
+    user_email = st.session_state.email
+    history_items = [(k, v) for k, v in cache.items() if k[0] == user_email]
+    
+    if history_items:
+        st.subheader("📜 Your Generation History")
+        for (email, task, desc), output in reversed(history_items):
+            with st.expander(f"📝 {task} for: {desc}"):
+                st.markdown(f'<div class="output-box">{output}</div>', unsafe_allow_html=True)
+    else:
+        st.info("No history found.")
+
+# --- Default Info ---
+if not user_input:
+    st.info("Please describe your product or brand to start generating.")
