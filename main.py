@@ -152,3 +152,49 @@ st.markdown("""
     <p class="subtitle">Catchy <b>slogans</b>, <b>ad copies</b>, and <b>bold campaign ideas</b>. AI Marketing, Simplified.</p>
 </div>
 """, unsafe_allow_html=True)
+# --- Session State Init ---
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.page = "login"
+    st.session_state.email = ""
+    st.session_state.show_history = False
+
+# --- Auth Pages ---
+def login_page():
+    st.subheader("🔐 Login")
+    email = st.text_input("Email", key="login_email")
+    password = st.text_input("Password", type="password", key="login_password")
+    if st.button("Login"):
+        if email in users and users[email]["password"] == hash_password(password):
+            st.session_state.logged_in = True
+            st.session_state.email = email
+            st.success("Login successful!")
+            st.rerun()
+        else:
+            st.error("Invalid email or password.")
+    if st.button("Go to Signup"):
+        st.session_state.page = "signup"
+        st.rerun()
+
+def signup_page():
+    st.subheader("📝 Signup")
+    email = st.text_input("Email", key="signup_email")
+    password = st.text_input("Password", type="password", key="signup_password")
+    if st.button("Signup"):
+        if email in users:
+            st.error("User already exists.")
+        else:
+            users[email] = {"password": hash_password(password)}
+            save_users()
+            st.success("Signup successful! Please log in.")
+            st.session_state.page = "login"
+            st.rerun()
+
+    if st.button("Go to Login"):
+        st.session_state.page = "login"
+        st.rerun()
+
+def logout():
+    st.session_state.logged_in = False
+    st.session_state.email = ""
+    st.rerun()
