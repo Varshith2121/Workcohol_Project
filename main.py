@@ -69,3 +69,86 @@ def get_base64_bg(path):
     return base64.b64encode(data).decode()
 
 bg_base64 = get_base64_bg(BACKGROUND_IMAGE)
+st.markdown(f"""
+<style>
+html, body, [data-testid="stApp"] {{
+    background-image: url("data:image/jpg;base64,{bg_base64}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    font-family: 'Segoe UI', sans-serif;
+}}
+h1, h2, h3, .stTextInput label, .stSelectbox label {{
+    color: white !important;
+    text-shadow: 1px 1px 3px black;
+}}
+input, textarea, select {{
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    color: black !important;
+    border-radius: 5px !important;
+    padding: 10px;
+    font-size: 16px;
+}}
+input:focus, textarea:focus, select:focus {{
+    outline: 2px solid #ffa94d !important;
+    box-shadow: 0 0 5px #ffa94d !important;
+}}
+.stSelectbox div[role="combobox"] {{
+    border-radius: 5px;
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+}}
+.stSelectbox div[role="combobox"] > div:first-child {{
+    color: white !important;
+    font-weight: 600;
+    padding: 8px;
+}}
+.stButton>button {{
+    background-color: #ffa94d;
+    color: black;
+    border-radius: 10px;
+    font-weight: bold;
+    padding: 8px 16px;
+    transition: 0.2s ease-in-out;
+}}
+.stButton>button:hover {{
+    background-color: #ff922b;
+}}
+.title-container {{
+    text-align: center;
+    margin-bottom: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 15px;
+}}
+.title-container h1 {{
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+}}
+.title-container .subtitle {{
+    font-size: 18px;
+    color: #f1f1f1;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+}}
+.output-box {{
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    margin-top: 15px;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Header ---
+st.markdown("""
+<div class="title-container">
+    <h1>☁️ AI Marketing Idea Generator</h1>
+    <p class="subtitle">Catchy <b>slogans</b>, <b>ad copies</b>, and <b>bold campaign ideas</b>. AI Marketing, Simplified.</p>
+</div>
+""", unsafe_allow_html=True)
