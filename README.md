@@ -11,6 +11,8 @@ This is a Streamlit-based web application that uses Google Gemini (via LangChain
 - Choose between Slogan, Ad Copy, and Campaign Idea generation.
 - Simply enter a brief description about Brand/Product- the AI takes care of the rest.
 - Stylish UI with custom background image and dark blur theme.
+- Separate login/logout/dashboard views with session handling.
+- Pickle is used to store user data and cache generated results.
 - Uses Google Gemini via LangChain's custom LLM wrapper.
 - Get results in formats suitable for social media, email marketing, web banners, and more.
 
@@ -21,6 +23,9 @@ This is a Streamlit-based web application that uses Google Gemini (via LangChain
 - Python
 - Streamlit
 - Google Generative AI (Gemini)
+- Pickle
+- Hashlib
+- Pydantic
 - LangChain
 - Streamlit for API keys
 - Base64/CSS for background styling
