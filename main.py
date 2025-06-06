@@ -232,3 +232,38 @@ if os.path.exists(CACHE_FILE):
         cache = pickle.load(f)
 else:
     cache = {}
+# --- Prompt ---
+task_type = st.selectbox("Select what you want to generate:", ["-- Select --", "Slogan", "Ad Copy", "Campaign Idea"])
+user_input = st.text_input("Describe your product or brand:", "e.g. 'A new eco-friendly recycled cotton clothing'").strip()
+
+prompt_templates = {
+    "Slogan": "Create a catchy marketing slogan for: {product}",
+    "Ad Copy": "Write a persuasive ad copy for: {product}",
+    "Campaign Idea": "Come up with a creative marketing campaign for: {product}"
+}
+
+generate_clicked = st.button("🚀 Generate")
+
+# --- Generate Output ---
+if user_input and task_type != "-- Select --" and generate_clicked:
+    key = (st.session_state.email, task_type, user_input)
+    if key in cache:
+        result = cache[key]
+        st.success("Loaded from cache!")
+    else:
+        try:
+            with st.spinner("Generating..."):
+                llm = GeminiLLM(api_key=API_KEY)
+                prompt = PromptTemplate.from_template(prompt_templates[task_type])
+                chain = LLMChain(llm=llm, prompt=prompt)
+                result = chain.run(product=user_input)
+                cache[key] = result
+                with open(CACHE_FILE, "wb") as f:
+                    pickle.dump(cache, f)
+        except Exception as e:
+            st.error(f"Error: {e}")
+            result = None
+
+    if result:
+        st.markdown("🎯 Generated Output")
+        st.markdown(f'<div class="output-box">{result}</div>', unsafe_allow_html=True)
