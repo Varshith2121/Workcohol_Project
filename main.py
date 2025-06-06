@@ -198,3 +198,37 @@ def logout():
     st.session_state.logged_in = False
     st.session_state.email = ""
     st.rerun()
+# --- Login Flow ---
+if not st.session_state.logged_in:
+    if st.session_state.page == "login":
+        login_page()
+    else:
+        signup_page()
+    st.stop()
+
+# --- Sidebar ---
+st.sidebar.success(f"Logged in as {st.session_state.email}")
+if st.sidebar.button("Logout"):
+    logout()
+
+if st.sidebar.button("📜 Show History" if not st.session_state.show_history else "📜 Hide History"):
+    st.session_state.show_history = not st.session_state.show_history
+
+if st.sidebar.button("🗑️ Delete History"):
+    email = st.session_state.email
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "rb") as f:
+            cache = pickle.load(f)
+        keys_to_delete = [key for key in cache if key[0] == email]
+        for key in keys_to_delete:
+            del cache[key]
+        with open(CACHE_FILE, "wb") as f:
+            pickle.dump(cache, f)
+    st.sidebar.success("Your generation history has been cleared!")
+
+# --- Load or Init Cache ---
+if os.path.exists(CACHE_FILE):
+    with open(CACHE_FILE, "rb") as f:
+        cache = pickle.load(f)
+else:
+    cache = {}
