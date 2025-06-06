@@ -7,152 +7,41 @@ from langchain.chains import LLMChain
 from langchain.schema import LLMResult
 from pydantic import PrivateAttr
 from typing import List, Optional, Any
-import time
 import base64
 import pickle
+import hashlib
 
-# --- Streamlit page config ---
+# --- Page Config ---
 st.set_page_config(page_title="☁️ AI Marketing Generator", layout="centered")
 
-# --- Load API key from secrets ---
-API_KEY = st.secrets.get("GEMINI_API_KEY")
-if not API_KEY:
-    st.error("If API key is not found, Set your GEMINI_API_KEY in Streamlit secrets.")
-    st.stop()
+# --- Constants ---
+API_KEY = st.secrets.get("GEMINI_API_KEY", "")
+USERS_FILE = "users.pkl"
+CACHE_FILE = "generation_cache.pkl"
+BACKGROUND_IMAGE = "background_image.jpg"
 
-# --- Helper to embed background image ---
-def get_base64_bg(path):
-    with open(path, "rb") as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+# --- Load Users ---
+if os.path.exists(USERS_FILE):
+    with open(USERS_FILE, "rb") as f:
+        users = pickle.load(f)
+else:
+    users = {
+        "hari@gmail.com": {"password": hashlib.sha256("admin123".encode()).hexdigest()}
+    }
 
-background_path = "pexels-leofallflat-1737957.jpg"  # Ensure this file exists in your directory
-bg_base64 = get_base64_bg(background_path)
+def save_users():
+    with open(USERS_FILE, "wb") as f:
+        pickle.dump(users, f)
 
-# --- Custom CSS Styling ---
-st.markdown(f"""
-<style>
-html, body, [data-testid="stApp"] {{
-    background-image: url("data:image/jpg;base64,{bg_base64}");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    color: #f3f3f3;
-    font-family: 'Segoe UI', sans-serif;
-}}
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-.title-container {{
-    background: rgba(0, 0, 0, 0.75);
-    padding: 25px 30px;
-    border-radius: 15px;
-    max-width: 900px;
-    margin: 30px auto 10px auto;
-    box-shadow: 0 0 15px rgba(0,0,0,0.8);
-    text-align: center;
-}}
-
-.title-container h1 {{
-    color: #ffffff;
-    font-size: 3.2rem;
-    font-weight: 900;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
-}}
-
-.subtitle {{
-    color: #eee;
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    font-weight: 500;
-    text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
-}}
-
-.stSelectbox label {{
-    color: #eee !important;
-    font-weight: bold;
-}}
-
-div[data-baseweb="select"] > div {{
-    background-color: rgba(20, 20, 20, 0.7) !important;
-    color: white !important;
-    border-radius: 10px;
-}}
-
-div[data-baseweb="select"] > div:hover {{
-    background-color: rgba(40, 40, 40, 0.9) !important;
-}}
-
-.stTextInput input {{
-    background-color: rgba(30, 30, 30, 0.8) !important;
-    color: white !important;
-    border: none !important;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border-radius: 10px !important;
-}}
-
-.stTextInput label {{
-    color: white !important;
-    font-weight: 600;
-    font-size: 1rem;
-}}
-
-button[kind="secondary"], button[kind="primary"] {{
-    font-size: 1rem;
-    font-weight: bold;
-    background: linear-gradient(135deg, #4a00e0, #8e2de2);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 24px;
-    cursor: pointer;
-    transition: all 0.4s ease;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-}}
-
-button[kind="secondary"]:hover, button[kind="primary"]:hover {{
-    transform: scale(1.05);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-    filter: brightness(1.1);
-}}
-
-.output-box {{
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 15px;
-    color: #fff;
-    font-size: 1.25rem;
-    line-height: 1.6;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.2);
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.9);
-}}
-
-.typing {{
-    color: #fff;
-    font-size: 1.2rem;
-    line-height: 1.5;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
-}}
-</style>
-""", unsafe_allow_html=True)
-
-# --- Header ---
-st.markdown("""
-<div class="title-container">
-    <h1>☁️ AI Marketing Idea Generator</h1>
-    <p class="subtitle">Catchy <b>slogans</b>, <b>ad copies</b> and <b> Bold campaign ideas. AI Marketing, Simplified.</b></p>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Gemini LLM Wrapper for LangChain ---
+# --- Gemini Wrapper ---
 class GeminiLLM(LLM):
-    model_name: str = "gemini-1.5-flash"
+    model_name: str = "models/gemini-1.5-flash"
     _model: Any = PrivateAttr()
 
-    def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "models/gemini-1.5-flash"):
         super().__init__()
         genai.configure(api_key=api_key)
         self.model_name = model_name
@@ -170,26 +59,185 @@ class GeminiLLM(LLM):
         generations = [[{"text": self._call(prompt, stop)}] for prompt in prompts]
         return LLMResult(generations=generations)
 
-# --- Typewriter Effect ---
-def type_writer_effect(text, speed=0.02):
-    output = ""
-    placeholder = st.empty()
-    for char in text:
-        output += char
-        placeholder.markdown(f"<div class='typing'>{output}</div>", unsafe_allow_html=True)
-        time.sleep(speed)
+# --- Background Styling ---
+def get_base64_bg(path):
+    if not os.path.exists(path):
+        return ""
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-# --- Caching ---
-CACHE_FILE = "generation_cache.pkl"
+bg_base64 = get_base64_bg(BACKGROUND_IMAGE)
+
+st.markdown(f"""
+<style>
+html, body, [data-testid="stApp"] {{
+    background-image: url("data:image/jpg;base64,{bg_base64}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    font-family: 'Segoe UI', sans-serif;
+}}
+h1, h2, h3, .stTextInput label, .stSelectbox label {{
+    color: white !important;
+    text-shadow: 1px 1px 3px black;
+}}
+input, textarea, select {{
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    color: black !important;
+    border-radius: 5px !important;
+    padding: 10px;
+    font-size: 16px;
+}}
+input:focus, textarea:focus, select:focus {{
+    outline: 2px solid #ffa94d !important;
+    box-shadow: 0 0 5px #ffa94d !important;
+}}
+.stSelectbox div[role="combobox"] {{
+    border-radius: 5px;
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+}}
+.stSelectbox div[role="combobox"] > div:first-child {{
+    color: white !important;
+    font-weight: 600;
+    padding: 8px;
+}}
+.stButton>button {{
+    background-color: #ffa94d;
+    color: black;
+    border-radius: 10px;
+    font-weight: bold;
+    padding: 8px 16px;
+    transition: 0.2s ease-in-out;
+}}
+.stButton>button:hover {{
+    background-color: #ff922b;
+}}
+.title-container {{
+    text-align: center;
+    margin-bottom: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 15px;
+}}
+.title-container h1 {{
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+}}
+.title-container .subtitle {{
+    font-size: 18px;
+    color: #f1f1f1;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+}}
+.output-box {{
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    margin-top: 15px;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Header ---
+st.markdown("""
+<div class="title-container">
+    <h1>☁️ AI Marketing Idea Generator</h1>
+    <p class="subtitle">Catchy <b>slogans</b>, <b>ad copies</b>, and <b>bold campaign ideas</b>. AI Marketing, Simplified.</p>
+</div>
+""", unsafe_allow_html=True)
+
+# --- Session State Init ---
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.page = "login"
+    st.session_state.email = ""
+    st.session_state.show_history = False
+
+# --- Auth Pages ---
+def login_page():
+    st.subheader("🔐 Login")
+    email = st.text_input("Email", key="login_email")
+    password = st.text_input("Password", type="password", key="login_password")
+    if st.button("Login"):
+        if email in users and users[email]["password"] == hash_password(password):
+            st.session_state.logged_in = True
+            st.session_state.email = email
+            st.success("Login successful!")
+            st.rerun()
+        else:
+            st.error("Invalid email or password.")
+    if st.button("Go to Signup"):
+        st.session_state.page = "signup"
+        st.rerun()
+
+def signup_page():
+    st.subheader("📝 Signup")
+    email = st.text_input("Email", key="signup_email")
+    password = st.text_input("Password", type="password", key="signup_password")
+    if st.button("Signup"):
+        if email in users:
+            st.error("User already exists.")
+        else:
+            users[email] = {"password": hash_password(password)}
+            save_users()
+            st.success("Signup successful! Please log in.")
+            st.session_state.page = "login"
+            st.rerun()
+
+    if st.button("Go to Login"):
+        st.session_state.page = "login"
+        st.rerun()
+
+def logout():
+    st.session_state.logged_in = False
+    st.session_state.email = ""
+    st.rerun()
+
+# --- Login Flow ---
+if not st.session_state.logged_in:
+    if st.session_state.page == "login":
+        login_page()
+    else:
+        signup_page()
+    st.stop()
+
+# --- Sidebar ---
+st.sidebar.success(f"Logged in as {st.session_state.email}")
+if st.sidebar.button("Logout"):
+    logout()
+
+if st.sidebar.button("📜 Show History" if not st.session_state.show_history else "📜 Hide History"):
+    st.session_state.show_history = not st.session_state.show_history
+
+if st.sidebar.button("🗑️ Delete History"):
+    email = st.session_state.email
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "rb") as f:
+            cache = pickle.load(f)
+        keys_to_delete = [key for key in cache if key[0] == email]
+        for key in keys_to_delete:
+            del cache[key]
+        with open(CACHE_FILE, "wb") as f:
+            pickle.dump(cache, f)
+    st.sidebar.success("Your generation history has been cleared!")
+
+# --- Load or Init Cache ---
 if os.path.exists(CACHE_FILE):
     with open(CACHE_FILE, "rb") as f:
         cache = pickle.load(f)
 else:
     cache = {}
 
-# --- Main App Logic ---
-task_type = st.selectbox(" Select what you want to generate:", ["Slogan", "Ad Copy", "Campaign Idea"])
-user_input = st.text_input(" Describe your product or brand:", "e.g. 'A new eco-friendly recycled cotton clothing'").strip()
+# --- Prompt ---
+task_type = st.selectbox("Select what you want to generate:", ["-- Select --", "Slogan", "Ad Copy", "Campaign Idea"])
+user_input = st.text_input("Describe your product or brand:", "e.g. 'A new eco-friendly recycled cotton clothing'").strip()
 
 prompt_templates = {
     "Slogan": "Create a catchy marketing slogan for: {product}",
@@ -197,28 +245,45 @@ prompt_templates = {
     "Campaign Idea": "Come up with a creative marketing campaign for: {product}"
 }
 
-if user_input:
-    if st.button("🚀 Generate"):
-        key = (task_type, user_input)
-        if key in cache:
-            result = cache[key]
-            st.success("Loaded from cache!")
-        else:
-            with st.spinner("Thinking..."):
-                try:
-                    llm = GeminiLLM(api_key=API_KEY)
-                    prompt = PromptTemplate.from_template(prompt_templates[task_type])
-                    chain = LLMChain(llm=llm, prompt=prompt)
-                    result = chain.run(product=user_input)
-                    cache[key] = result
-                    with open(CACHE_FILE, "wb") as f:
-                        pickle.dump(cache, f)
-                except Exception as e:
-                    st.error(f"Something went wrong: {e}")
-                    result = None
+generate_clicked = st.button("🚀 Generate")
 
-        if result:
-            st.markdown(" 🎯 Generated Output")
-            st.markdown(f'<div class="output-box">{result}</div>', unsafe_allow_html=True)
-else:
-    st.info("Fill in the product/brand description to begin.")
+# --- Generate Output ---
+if user_input and task_type != "-- Select --" and generate_clicked:
+    key = (st.session_state.email, task_type, user_input)
+    if key in cache:
+        result = cache[key]
+        st.success("Loaded from cache!")
+    else:
+        try:
+            with st.spinner("Generating..."):
+                llm = GeminiLLM(api_key=API_KEY)
+                prompt = PromptTemplate.from_template(prompt_templates[task_type])
+                chain = LLMChain(llm=llm, prompt=prompt)
+                result = chain.run(product=user_input)
+                cache[key] = result
+                with open(CACHE_FILE, "wb") as f:
+                    pickle.dump(cache, f)
+        except Exception as e:
+            st.error(f"Error: {e}")
+            result = None
+
+    if result:
+        st.markdown("🎯 Generated Output")
+        st.markdown(f'<div class="output-box">{result}</div>', unsafe_allow_html=True)
+
+# --- Show History (Main Area) ---
+if st.session_state.show_history:
+    user_email = st.session_state.email
+    history_items = [(k, v) for k, v in cache.items() if k[0] == user_email]
+    
+    if history_items:
+        st.subheader("📜 Your Generation History")
+        for (email, task, desc), output in reversed(history_items):
+            with st.expander(f"📝 {task} for: {desc}"):
+                st.markdown(f'<div class="output-box">{output}</div>', unsafe_allow_html=True)
+    else:
+        st.info("No history found.")
+
+# --- Default Info ---
+if not user_input:
+    st.info("Please describe your product or brand to start generating.")
